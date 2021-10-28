@@ -29,10 +29,10 @@ void addJob(Jobs *jobs, Child *newJob){
         Sets jobID for the new process and adds it to the list of jobs
     */
     
-    if (jobs->head == NULL) {
+    if (jobs->head == NULL) { /* if the job list is empty then the jobID of 1 is given*/
         newJob->jobID = 1;
     }else {
-        newJob->jobID = jobs->head->jobID + 1;
+        newJob->jobID = jobs->head->jobID + 1; /* other wise just add 1 to the newest job */
     }
     newJob->next = jobs->head;
     jobs->head = newJob;
@@ -53,6 +53,8 @@ int removeCompletedJobs(Jobs *jobs){
             return FALSE;
         }
         if (WIFEXITED(status) || WIFSIGNALED(status)) {
+             // block signals
+            
             if (prev == NULL) {
                 jobs->head = ptr->next;
                 free(ptr->command);
@@ -103,7 +105,11 @@ void populateChild (Child *child, char** input, pid_t processID, pid_t groupID, 
     child->isSuspended = FALSE;
 }
 
-void executeChild(Child *child){
-    execve(child->command, child->argv, ENVP);
+int executeChild(Child *child){
+    if (execvp(child->command, child->argv) == -1){
+        perror("error executing");
+        return FALSE;
+    }
+    return TRUE;
 
 }

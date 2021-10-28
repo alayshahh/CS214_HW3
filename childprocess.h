@@ -33,6 +33,6 @@ void addJob(Jobs* jobs, Child* newJob);
 int removeCompletedJobs(Jobs* jobs);
 int sendSignalToJob(Jobs* jobs, int jobID, int signal);
 void populateChild(Child *child, char **input, pid_t processID, pid_t groupID, int isBackground);
-void executeChild(Child* child);
+int executeChild(Child* child);
 
 
