@@ -22,13 +22,12 @@ int main(int argc, char **argv)
 	signal(SIGINT, handleSigint);
 	signal(SIGTSTP, handleSigtstp);
 	/* set envirnment variable so we can run commands from /bin and /usr/bin */
-	setenv("PATH", "/bin:/usr/bin", 1);
+	setenv(PATH, PATH_VAR, 1);
 	printf("> ");
 	while (getline(&input, &n, stdin) > 0)
 	{
 		// printf("%s", input);
 
-		printf("> ");
 
 		int isBackground = runInBackground(input);
 
@@ -41,14 +40,12 @@ int main(int argc, char **argv)
 		pid_t pid = fork();
 		if (pid == 0)
 		{
-
 			// get process ID for child process
 			pid_t processID = getpid();
 			// set group id to process ID
 			setpgid(processID, processID);
-
 			Child *child = (Child *)malloc(sizeof(Child)); /* block signals  */
-			populateChild(child, args, processID, processID, isBackground);
+			populateChild(child, args, processID, processID, isBackground, input);
 			addJob(&jobs, child);
 			executeChild(child);
 		}
@@ -61,7 +58,7 @@ int main(int argc, char **argv)
 			}
 		}
 
-		input = NULL;
+		printf("> ");
 	}
 
 	return EXIT_SUCCESS;

@@ -2,6 +2,8 @@
 #define TRUE 1
 #define FALSE 0
 
-char *const ENVP [] = {"PATH=/bin:/usr/bin", NULL};
-char DELIMITER [3] = " \n";
-char BACKGROUND_PATTERN [8]= ".*&\\s*$";
+char WHITESPACE_DELIMITER [3] = " \n";
+char* AMPERSAND = "&";
+char BACKGROUND_PATTERN [9]= "^.*&\\s*$";
+char PATH [5] = "PATH";
+char PATH_VAR [14] = "/bin:/usr/bin";

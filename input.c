@@ -19,20 +19,6 @@ int runInBackground(char *input)
     }
     return TRUE;
 }
-char *removeLast(const char *s)
-{
-    char *newStr = NULL;
-    size_t sLen; // length of the 's' string
-
-    // check for 's' validity (not NULL and not empty) and successful 'malloc'
-    if (s && (sLen = strlen(s)) && (newStr = malloc(sLen)))
-    {
-        strcpy(newStr, s);
-        newStr[sLen - 1] = '\0';
-    }
-
-    return newStr;
-}
 
 char **splitString(char *str, int isBackground)
 {
@@ -41,7 +27,7 @@ char **splitString(char *str, int isBackground)
     make sure that signals are blocked during this process
    */
     char **split = NULL;
-    char *word = strtok(str, " \n"); /* split on space and newline char*/
+    char *word = strtok(str, WHITESPACE_DELIMITER); /* split on space and newline char*/
     int words = 0;
     /* split string and append tokens to split array */
     while (word)
@@ -51,19 +37,19 @@ char **splitString(char *str, int isBackground)
         if (split == NULL)
             exit(-1); /* memory allocation failed */
         split[words - 1] = word;
-        word = strtok(NULL, " \n");
+        word = strtok(NULL, WHITESPACE_DELIMITER);
     }
     /* realloc one extra element for the last NULL */
     if (isBackground)
     {
         char *lastword = split[words - 1];
-        if (strcmp(lastword, "&") == 0)
+        if (strcmp(lastword, AMPERSAND) == 0)
         {
             split[words - 1] = NULL;
         }
         else
         {
-            split[words - 1] = removeLast(lastword);
+            split[words - 1] = strtok(lastword, AMPERSAND);
         }
     }
     split = realloc(split, sizeof(char *) * (words + 1));

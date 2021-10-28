@@ -2,9 +2,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
-
-
 typedef struct Child {
     //used to identify job by shell user
     int jobID;
@@ -20,6 +17,8 @@ typedef struct Child {
     char *command;
     // the args for the program that is running
     char **argv;
+    //need to free the input from the user once we are done
+    char* input;
     struct Child* next;
 } Child;
 
@@ -32,7 +31,7 @@ void printAllJobs(Jobs* jobs);
 void addJob(Jobs* jobs, Child* newJob);
 int removeCompletedJobs(Jobs* jobs);
 int sendSignalToJob(Jobs* jobs, int jobID, int signal);
-void populateChild(Child *child, char **input, pid_t processID, pid_t groupID, int isBackground);
+void populateChild(Child *child, char **input, pid_t processID, pid_t groupID, int isBackground, char* input);
 int executeChild(Child* child);
 
 
