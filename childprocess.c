@@ -104,6 +104,21 @@ void populateChild (Child *child, char** input, pid_t processID, pid_t groupID, 
 }
 
 void executeChild(Child *child){
-    execve(child->command, child->argv, ENVP);
+    //no errors running program
+    if(execve(child->command, child->argv, ENVP) == 0){
+        exit(1);
+    } else {
+        char* usrBinPath = concat("/usr/bin", child->command);
+        if(execve(usrBinPath, child->argv, ENVP) == 0){
+            exit(1);
+        } else {
+            char* binPath = concat("/bin/", child->command);
+            if(execve(binPath, child->argv, ENVP) == 0){
+                exit(1);
+            }
+        }
 
+        //could not find program, print error message
+        printf("%s: command not found\n", child->command);
+    }
 }

@@ -2,9 +2,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
-
-
 typedef struct Child {
     //used to identify job by shell user
     int jobID;

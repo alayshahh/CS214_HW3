@@ -4,3 +4,4 @@ CFLAGS = -Wall -g -fsanitize=address
 	gcc $(CFLAGS) -o $@ $^
 clean:
 	rm -rf shell
+	rm -rf child
