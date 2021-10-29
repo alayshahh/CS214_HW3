@@ -1,9 +1,15 @@
 #include <stdlib.h>
+
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
 #define TRUE 1
 #define FALSE 0
 
-char WHITESPACE_DELIMITER [3] = " \n";
-char* AMPERSAND = "&";
-char BACKGROUND_PATTERN [9]= "^.*&\\s*$";
-char PATH [5] = "PATH";
-char PATH_VAR [14] = "/bin:/usr/bin";
+static const char WHITESPACE_DELIMITER [3] = " \n";
+static const char* AMPERSAND = "&";
+static const char BACKGROUND_PATTERN [9]= "^.*&\\s*$";
+static const char PATH [5] = "PATH";
+static const char PATH_VAR [14] = "/bin:/usr/bin";
+
+#endif
