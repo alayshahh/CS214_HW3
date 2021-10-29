@@ -135,6 +135,7 @@ int executeChild(Child *child)
     if (execvp(child->command, child->argv) == -1)
     {
         perror();
+        printf("%s: command not found", child->command);
         return FALSE;
     }
     return TRUE;

@@ -4,6 +4,7 @@
 #include <signal.h>
 #include "childprocess.h"
 #include "input.h"
+#include "constants.h"
 
 void handleSigint();
 void handleSigtstp();
