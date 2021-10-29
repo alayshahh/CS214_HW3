@@ -7,8 +7,8 @@
 #include "input.h"
 #include "constants.h"
 
-// void handleSigint();
-// void handleSigtstp();
+//void handleSigint();
+//void handleSigtstp();
 // used to keep track of pid of foreground process, set to null when foreground process is terminated or is moved to background or is suspended
 
 
@@ -21,8 +21,8 @@ int main(int argc, char **argv)
 	char *input = NULL;
 	size_t n = 0;
 	/* placeholder for signal handlers */
-	// signal(SIGINT, handleSigint);
-	// signal(SIGTSTP, handleSigtstp);
+	//signal(SIGINT, handleSigint);
+	//signal(SIGTSTP, handleSigtstp);
 	/* set envirnment variable so we can run commands from /bin and /usr/bin */
 	setenv(PATH, PATH_VAR, 1);
 	printf("> ");
