@@ -31,7 +31,7 @@ void printAllJobs(Jobs* jobs);
 void addJob(Jobs* jobs, Child* newJob);
 int removeCompletedJobs(Jobs* jobs);
 int sendSignalToJob(Jobs* jobs, int jobID, int signal);
-void populateChild(Child *child, char **input, pid_t processID, pid_t groupID, int isBackground, char* input);
+void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, int isBackground, char* input);
 int executeChild(Child* child);
 
 

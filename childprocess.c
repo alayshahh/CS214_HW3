@@ -118,10 +118,10 @@ int sendSignalToJob(Jobs *jobs, int jobID, int signal)
     return FALSE;
 }
 
-void populateChild(Child *child, char **input, pid_t processID, pid_t groupID, int isBackground, char* input)
+void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, int isBackground, char* input)
 {
-    child->command = input[0];
-    child->argv = input;
+    child->command = argv[0];
+    child->argv = argv;
     child->processID = processID;
     child->groupID = groupID;
     child->isBackground = isBackground;
@@ -134,7 +134,7 @@ int executeChild(Child *child)
 {
     if (execvp(child->command, child->argv) == -1)
     {
-        perror();
+        perror("error executing -ibum");
         printf("%s: command not found", child->command);
         return FALSE;
     }

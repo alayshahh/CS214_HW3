@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include "childprocess.h"
 #include "input.h"
 #include "constants.h"
@@ -9,7 +10,7 @@
 void handleSigint();
 void handleSigtstp();
 // used to keep track of pid of foreground process, set to null when foreground process is terminated or is moved to background or is suspended
-pid_t foregroundPID = NULL;
+
 
 int main(int argc, char **argv)
 {
