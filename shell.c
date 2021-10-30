@@ -6,6 +6,7 @@
 #include "childprocess.h"
 #include "input.h"
 #include "constants.h"
+#include "internal.h"
 
 //void handleSigint();
 //void handleSigtstp();
@@ -28,35 +29,42 @@ int main(int argc, char **argv)
 	printf("> ");
 	while (getline(&input, &n, stdin) > 0)
 	{
-		// printf("%s", input);
-
-
+		//Returns TRUE: 1 or FALSE: 0
 		int isBackground = runInBackground(input);
 
 		char **args = splitString(input, isBackground); /* block signals */
+
+		int isIC = isInternalCommand(args[0]);
+
+		if(isIC) {
+			printf(" is an internal command\n");
+		}
+
 		/*
 			input checking  
 		*/
 
 		// if it is not a built in command
-		pid_t pid = fork();
-		if (pid == 0)
-		{
-			// get process ID for child process
-			pid_t processID = getpid();
-			// set group id to process ID
-			setpgid(processID, processID);
-			Child *child = (Child *)malloc(sizeof(Child)); /* block signals  */
-			populateChild(child, args, processID, processID, isBackground, input);
-			addJob(&jobs, child);
-			executeChild(child);
-		}
-		else
-		{
-			if (!isBackground)
+		if(!isIC){
+			pid_t pid = fork();
+			if (pid == 0)
 			{
-				int status;
-				waitpid(pid, &status, 0);
+				// get process ID for child process
+				pid_t processID = getpid();
+				// set group id to process ID
+				setpgid(processID, processID);
+				Child *child = (Child *)malloc(sizeof(Child)); /* block signals  */
+				populateChild(child, args, processID, processID, isBackground, input);
+				addJob(&jobs, child);
+				executeChild(child);
+			}
+			else
+			{
+				if (!isBackground)
+				{
+					int status;
+					waitpid(pid, &status, 0);
+				}
 			}
 		}
 
