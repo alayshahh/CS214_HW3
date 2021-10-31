@@ -23,7 +23,6 @@ void sigintHandler() {
 void sigtstpHandler() {
 }
 void sigchldHandler() {
-	printf("\nin sigchld handler\n");
 	sigset_t maskAll, prevAll;
     sigfillset(&maskAll);
 
@@ -49,11 +48,17 @@ int main(int argc, char **argv) {
     setenv(PATH, PATH_VAR, 1);
     printf("> ");
     while (getline(&input, &n, stdin) > 0) {
+        if(strcmp(input, "\n") == 0){
+            printf("> ");
+            input = NULL;
+            n = 0;
+            continue;
+        }
         //Returns TRUE: 1 or FALSE: 0
         int isBackground = runInBackground(input);
 
         char **args = splitString(input, isBackground); /* block signals */
-
+    
         int isIC = isInternalCommand(args, jobs);
 
         sigset_t maskAll, maskOne, prevOne;

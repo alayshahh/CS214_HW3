@@ -109,7 +109,6 @@ int sendSignalToForeground(Jobs *jobs, int signal) {
             return TRUE;  //all is good
         }
     }
-    printf("foreground process does not exist");
     //no foreground process doesnt exist
     return FALSE;
 }

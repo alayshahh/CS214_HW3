@@ -6,7 +6,7 @@
 #include "childprocess.h"
 
 int isInternalCommand(char** input, Jobs jobs){
-
+	
 	if(strcmp("fg", input[0]) == 0){ //fg <JobID>
 		return TRUE;
 	} else 
