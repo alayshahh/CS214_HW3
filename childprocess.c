@@ -113,6 +113,7 @@ int sendSignalToForeground(Jobs *jobs, int signal) {
                     ptr->isBackground = TRUE;
                 }
             }
+            printf("%d terminated \n", ptr->processID);
             return TRUE;  //all is good
         }
     }
