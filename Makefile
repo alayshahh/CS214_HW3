@@ -4,7 +4,7 @@ CFLAGS = -Wall -g -fsanitize=address
 	gcc $(CFLAGS) -o $@ $^
 
 all:
-	gcc -o shell shell.c childprocess.c input.c
+	gcc -o shell shell.c childprocess.c input.c internal.c
 
 clean:
 	rm -rf shell

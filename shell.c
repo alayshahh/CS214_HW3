@@ -6,6 +6,7 @@
 #include "childprocess.h"
 #include "input.h"
 #include "constants.h"
+#include "internal.h"
 
 
 
@@ -31,10 +32,14 @@ int main(int argc, char **argv)
 		sigaddset(&maskOne, SIGCHLD);
 
 		printf("%s\n", input);
+		//Returns TRUE: 1 or FALSE: 0
 		int isBackground = runInBackground(input);
 		printf("%d\n", isBackground);
 
 		char **args = splitString(input, isBackground); /* block signals */
+
+		int isIC = isInternalCommand(args, jobs);
+
 		/*
 			input checking  
 		*/
