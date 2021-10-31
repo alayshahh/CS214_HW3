@@ -45,7 +45,6 @@ int main(int argc, char **argv) {
 
         //Returns TRUE: 1 or FALSE: 0
         int isBackground = runInBackground(input);
-        printf("isBackground %d\n", isBackground);
 
         char **args = splitString(input, isBackground); /* block signals */
 

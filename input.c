@@ -7,7 +7,7 @@
 int runInBackground(char *input) {
     int status;
     regex_t re;
-    if (regcomp(&re, BACKGROUND_PATTERN, 0) != 0) {
+    if (regcomp(&re, BACKGROUND_PATTERN, REG_EXTENDED) != 0) {
         return FALSE;
     }
     status = regexec(&re, input, (size_t)0, NULL, 0);

@@ -8,7 +8,7 @@
 
 static const char WHITESPACE_DELIMITER[3] = " \n";
 static const char* AMPERSAND = "&";
-static const char BACKGROUND_PATTERN[10] = "^.*&\\s*\n?$";
+static const char BACKGROUND_PATTERN[11] = "^.*&\\s*\n?$";
 static const char PATH[5] = "PATH";
 static const char PATH_VAR[14] = "/bin:/usr/bin";
 
