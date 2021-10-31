@@ -14,7 +14,7 @@ int isInternalCommand(char** input, Jobs jobs){
 		return TRUE;
 	} else 
 	if(strcmp("exit", input[0]) == 0){
-		kill(getpid(), SIGINT);
+		kill(getpid(), SIGHUP);
 		return TRUE;
 	} else 
 	if(strcmp("kill", input[0]) == 0){ //kill <JobID>
