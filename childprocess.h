@@ -34,5 +34,6 @@ int sendSignalToJob(volatile Jobs *jobs, int jobID);
 int sendSignalToForeground(volatile Jobs *jobs, int signal);
 void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, int isBackground, char* input);
 int executeChild(char* command, char** args);
+Child* getJobByID(char* jobIDstr, Jobs jobs);
 
 

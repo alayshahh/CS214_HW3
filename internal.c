@@ -14,10 +14,12 @@ int isInternalCommand(char** input, Jobs jobs){
 		return TRUE;
 	} else 
 	if(strcmp("exit", input[0]) == 0){
-		kill(getpid(), SIGINT);
+		kill(getpid(), SIGHUP);
 		return TRUE;
 	} else 
 	if(strcmp("kill", input[0]) == 0){ //kill <JobID>
+		Child* child = getJobByID(input[1], jobs);
+		kill(child->processID, SIGINT);
 		return TRUE;
 	} else 
 	if(strcmp("jobs", input[0]) == 0){
