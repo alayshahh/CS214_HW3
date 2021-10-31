@@ -34,11 +34,7 @@ int main(int argc, char **argv)
 
 		char **args = splitString(input, isBackground); /* block signals */
 
-		int isIC = isInternalCommand(args[0]);
-
-		if(isIC) {
-			printf(" is an internal command\n");
-		}
+		int isIC = isInternalCommand(args, jobs);
 
 		/*
 			input checking  
