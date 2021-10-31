@@ -33,5 +33,6 @@ int removeCompletedJobs(Jobs* jobs);
 int sendSignalToJob(Jobs* jobs, int jobID, int signal);
 void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, int isBackground, char* input);
 int executeChild(char* command, char** args);
+Child* getJobByID(char* jobIDstr, Jobs jobs);
 
 

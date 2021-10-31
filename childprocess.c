@@ -141,3 +141,20 @@ int executeChild(char* command, char** args)
     }
     return TRUE;
 }
+
+Child* getJobByID(char* jobIDstr, Jobs jobs){
+
+    int targetJobID;
+    sscanf(jobIDstr, "%%%d", &targetJobID);
+
+    Child* ptr = jobs.head;
+
+    while(ptr != NULL){
+        if(ptr->jobID ==targetJobID){
+            return ptr;
+        }
+    }
+
+    return NULL;
+
+}
