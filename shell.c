@@ -8,15 +8,12 @@
 #include "constants.h"
 #include "internal.h"
 
-//void handleSigint();
-//void handleSigtstp();
-// used to keep track of pid of foreground process, set to null when foreground process is terminated or is moved to background or is suspended
 
+
+volatile Jobs jobs;
 
 int main(int argc, char **argv)
 {
-
-	Jobs jobs;
 	jobs.head = NULL;
 
 	char *input = NULL;
@@ -29,42 +26,49 @@ int main(int argc, char **argv)
 	printf("> ");
 	while (getline(&input, &n, stdin) > 0)
 	{
+		// printf("%s", input);
+		sigset_t maskAll, maskOne, prevOne, prevAll;
+		sigemptyset(&maskOne);
+		sigaddset(&maskOne, SIGCHLD);
+
+		printf("%s\n", input);
 		//Returns TRUE: 1 or FALSE: 0
 		int isBackground = runInBackground(input);
+		printf("%d\n", isBackground);
 
 		char **args = splitString(input, isBackground); /* block signals */
 
-		int isIC = isInternalCommand(args[0]);
-
-		if(isIC) {
-			printf(" is an internal command\n");
-		}
+		int isIC = isInternalCommand(args, jobs);
 
 		/*
 			input checking  
 		*/
 
 		// if it is not a built in command
-		if(!isIC){
-			pid_t pid = fork();
-			if (pid == 0)
+		pid_t pid = fork();
+		sigprocmask(SIG_BLOCK, &maskOne, &prevOne);
+		if (pid == 0)
+		{
+			sigprocmask(SIG_SETMASK, &prevOne, NULL);
+			executeChild(args[0], args);
+		}
+		else
+		{
+			sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
+			pid_t processID = getpid();
+			// set group id to process ID
+			setpgid(processID, processID);
+			Child *child = (Child *)malloc(sizeof(Child)); 
+			populateChild(child, args, processID, processID, isBackground, input);
+			addJob(&jobs, child);
+			printAllJobs(&jobs);
+			sigprocmask(SIG_SETMASK, &prevAll, NULL);
+
+			if (!isBackground)
 			{
-				// get process ID for child process
-				pid_t processID = getpid();
-				// set group id to process ID
-				setpgid(processID, processID);
-				Child *child = (Child *)malloc(sizeof(Child)); /* block signals  */
-				populateChild(child, args, processID, processID, isBackground, input);
-				addJob(&jobs, child);
-				executeChild(child);
-			}
-			else
-			{
-				if (!isBackground)
-				{
-					int status;
-					waitpid(pid, &status, 0);
-				}
+				int status;
+				printf("waiting for child to complete yooo\n");
+				waitpid(pid, &status, 0);
 			}
 		}
 

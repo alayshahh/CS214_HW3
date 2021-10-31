@@ -23,7 +23,7 @@ typedef struct Child {
 } Child;
 
 //wrapper class that stores a linked list of all child processes
-typedef struct Jobs{
+typedef volatile struct Jobs{
     Child* head;
 } Jobs;
 
@@ -32,6 +32,6 @@ void addJob(Jobs* jobs, Child* newJob);
 int removeCompletedJobs(Jobs* jobs);
 int sendSignalToJob(Jobs* jobs, int jobID, int signal);
 void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, int isBackground, char* input);
-int executeChild(Child* child);
+int executeChild(char* command, char** args);
 
 

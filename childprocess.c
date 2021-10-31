@@ -7,8 +7,10 @@
 #include <sys/wait.h>
 #include "childprocess.h"
 #include "constants.h"
+#include <signal.h>
 
-void printAllJobs(Jobs *jobs)
+
+void printAllJobs(volatile Jobs *jobs)
 {
     Child *head = jobs->head;
     while (head != NULL)
@@ -28,7 +30,7 @@ void printAllJobs(Jobs *jobs)
     }
 }
 
-void addJob(Jobs *jobs, Child *newJob)
+void addJob(volatile Jobs *jobs, Child *newJob)
 {
     /*
         Sets jobID for the new process and adds it to the list of jobs
@@ -46,7 +48,7 @@ void addJob(Jobs *jobs, Child *newJob)
     jobs->head = newJob;
 }
 
-int removeCompletedJobs(Jobs *jobs)
+int removeCompletedJobs(volatile Jobs *jobs)
 {
     /*
         After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children 
@@ -92,7 +94,7 @@ int removeCompletedJobs(Jobs *jobs)
     return EXIT_SUCCESS;
 }
 
-int sendSignalToJob(Jobs *jobs, int jobID, int signal)
+int sendSignalToJob(volatile Jobs *jobs, int jobID, int signal)
 {
     /*
         Sends signal to a child with certain jobID
@@ -130,12 +132,11 @@ void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, in
     child->input = input;
 }
 
-int executeChild(Child *child)
+int executeChild(char* command, char** args)
 {
-    if (execvp(child->command, child->argv) == -1)
+    if (execvp(command, args) == -1)
     {
-        perror("error executing -ibum");
-        printf("%s: command not found", child->command);
+        printf("%s: command not found\n", command);
         return FALSE;
     }
     return TRUE;
