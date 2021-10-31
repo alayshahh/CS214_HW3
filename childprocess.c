@@ -41,7 +41,7 @@ void addJob(volatile Jobs *jobs, Child *newJob) {
     jobs->head = newJob;
 }
 
-int removeCompletedJobs(volatile Jobs *jobs) {
+int removeCompletedJob(volatile Jobs *jobs, int pid) {
     /*
         After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children 
     */
@@ -49,15 +49,7 @@ int removeCompletedJobs(volatile Jobs *jobs) {
     Child *ptr = jobs->head;
     Child *prev = NULL;
     while (ptr != NULL) {
-        int status;
-        int w = waitpid(ptr->processID, &status, WNOHANG);
-        if (w == -1) {
-            perror("waitpid error");
-            return FALSE;
-        }
-        if (WIFEXITED(status) || WIFSIGNALED(status)) {
-            // block signals
-
+        if(ptr->processID == pid){
             if (prev == NULL) {
                 jobs->head = ptr->next;
                 free(ptr->argv);
@@ -70,6 +62,7 @@ int removeCompletedJobs(volatile Jobs *jobs) {
                 free(ptr);
                 ptr = prev->next;
             }
+            break;
         } else {
             prev = ptr;
             ptr = ptr->next;
@@ -113,7 +106,6 @@ int sendSignalToForeground(Jobs *jobs, int signal) {
                     ptr->isBackground = TRUE;
                 }
             }
-            printf("%d terminated \n", ptr->processID);
             return TRUE;  //all is good
         }
     }
