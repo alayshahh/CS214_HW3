@@ -71,8 +71,8 @@ int isInternalCommand(char** input, Jobs jobs){
 			// else
 			// printf("current working directory is: %s\n", cwd);
 			setenv("PWD", cwd, 1);
-			char* pwd = getenv("PWD");
-			printf("%s\n", pwd);
+			// char* pwd = getenv("PWD");
+			// printf("%s\n", pwd);
 		}
 
 		return TRUE;
