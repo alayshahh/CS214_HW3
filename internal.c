@@ -25,9 +25,14 @@ void terminateJobs(Jobs jobs){
 int isInternalCommand(char** input, Jobs jobs){
 	
 	if(strcmp("fg", input[0]) == 0){ //fg <JobID>
+		//TODO: Check for errors
+
 		Child* child = getJobByID(input[1], jobs);
-		kill(child->processID, SIGCONT);
-		waitpid(child->processID, NULL, 0);
+
+		if(child != NULL){
+			kill(child->processID, SIGCONT);
+			waitpid(child->processID, NULL, 0);
+		}
 		return TRUE;
 	} else 
 	if(strcmp("bg", input[0]) == 0){ //bg <JobID>

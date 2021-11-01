@@ -134,6 +134,10 @@ int executeChild(char *command, char **args) {
 
 Child* getJobByID(char* jobIDstr, Jobs jobs){
 
+    if(jobs.head == NULL){
+        return NULL;
+    }
+
     int targetJobID;
     sscanf(jobIDstr, "%%%d", &targetJobID);
 
