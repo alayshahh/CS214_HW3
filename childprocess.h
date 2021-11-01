@@ -29,7 +29,7 @@ typedef volatile struct Jobs{
 
 void printAllJobs(Jobs* jobs);
 void addJob(Jobs* jobs, Child* newJob);
-int removeCompletedJobs(Jobs* jobs);
+int removeCompletedJob(volatile Jobs *jobs, int pid);
 int sendSignalToJob(volatile Jobs *jobs, int jobID);
 int sendSignalToForeground(volatile Jobs *jobs, int signal);
 void populateChild(Child *child, char** argv, pid_t processID, pid_t groupID, int isBackground, char* input);

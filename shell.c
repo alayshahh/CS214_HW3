@@ -23,6 +23,15 @@ void sigintHandler() {
 void sigtstpHandler() {
 }
 void sigchldHandler() {
+	sigset_t maskAll, prevAll;
+    sigfillset(&maskAll);
+
+	pid_t pid;
+	while((pid = waitpid(-1, NULL, 0)) > 0){
+		sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
+		removeCompletedJob(&jobs, pid);
+    	sigprocmask(SIG_SETMASK, &prevAll, NULL);
+	}
 }
 
 int main(int argc, char **argv) {
@@ -33,41 +42,45 @@ int main(int argc, char **argv) {
     /* placeholder for signal handlers */
     signal(SIGINT, sigintHandler);
     signal(SIGTSTP, sigtstpHandler);
-    signal(SIGTSTP, sigchldHandler);
+    signal(SIGCHLD, sigchldHandler);
 
     /* set envirnment variable so we can run commands from /bin and /usr/bin */
     setenv(PATH, PATH_VAR, 1);
     printf("> ");
     while (getline(&input, &n, stdin) > 0) {
-        sigset_t maskAll, maskOne, prevOne, prevAll;
-        sigemptyset(&maskOne);
-        sigaddset(&maskOne, SIGCHLD);
-
+        if(strcmp(input, "\n") == 0){
+            printf("> ");
+            input = NULL;
+            n = 0;
+            continue;
+        }
         //Returns TRUE: 1 or FALSE: 0
         int isBackground = runInBackground(input);
 
         char **args = splitString(input, isBackground); /* block signals */
-
+    
         int isIC = isInternalCommand(args, jobs);
 
+        sigset_t maskAll, maskOne, prevOne;
+        sigemptyset(&maskOne);
+        sigaddset(&maskOne, SIGCHLD);
         // if it is not a built in command
         if (!isIC) {
-            sigprocmask(SIG_BLOCK, &maskOne, &prevOne);
+            sigprocmask(SIG_BLOCK, &maskOne, &prevOne); //block
             pid_t pid;
             if ((pid = fork()) == 0) {
-                sigprocmask(SIG_SETMASK, &prevOne, NULL);
+                sigprocmask(SIG_SETMASK, &prevOne, NULL); //unblock
                 executeChild(args[0], args);
             } else {
-                sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
+                sigprocmask(SIG_BLOCK, &maskAll, NULL); //block
                 pid_t processID = pid;
                 setpgid(processID, processID);
                 Child *child = (Child *)malloc(sizeof(Child));
                 populateChild(child, args, processID, processID, isBackground, input);
                 addJob(&jobs, child);
-                sigprocmask(SIG_SETMASK, &prevAll, NULL);
+                sigprocmask(SIG_SETMASK, &prevOne, NULL); //unblock
 
                 if (!isBackground) {
-                    printf("waiting\n");
                     int status;
                     waitpid(pid, &status, 0);
                 }

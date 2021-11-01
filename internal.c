@@ -23,7 +23,7 @@ void terminateJobs(Jobs jobs){
 }
 
 int isInternalCommand(char** input, Jobs jobs){
-
+	
 	if(strcmp("fg", input[0]) == 0){ //fg <JobID>
 		Child* child = getJobByID(input[1], jobs);
 		kill(child->processID, SIGCONT);
