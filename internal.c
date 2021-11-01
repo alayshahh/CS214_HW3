@@ -2,18 +2,43 @@
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include "constants.h"
 #include "childprocess.h"
+
+void terminateJobs(Jobs jobs){
+
+	Child* ptr = jobs.head;
+
+	while(ptr != NULL){
+		if(ptr->isSuspended == 1){ //stopped
+			kill(ptr->processID, SIGHUP);
+			kill(ptr->processID, SIGCONT);
+		}
+		if(ptr->isSuspended == 0){ //running
+			kill(ptr->processID, SIGHUP);
+		}
+	}
+		
+}
 
 int isInternalCommand(char** input, Jobs jobs){
 
 	if(strcmp("fg", input[0]) == 0){ //fg <JobID>
+		Child* child = getJobByID(input[1], jobs);
+		kill(child->processID, SIGCONT);
+		waitpid(child->processID, NULL, 0);
 		return TRUE;
 	} else 
 	if(strcmp("bg", input[0]) == 0){ //bg <JobID>
+		Child* child = getJobByID(input[1], jobs);
+
+		//TODO: Do we still want to run this if the process is in the bg
+		kill(child->processID, SIGCONT);
 		return TRUE;
 	} else 
 	if(strcmp("exit", input[0]) == 0){
+		terminateJobs(jobs);
 		kill(getpid(), SIGHUP);
 		return TRUE;
 	} else 
@@ -37,3 +62,4 @@ int isInternalCommand(char** input, Jobs jobs){
 
 	return FALSE;
 }
+
