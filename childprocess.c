@@ -41,6 +41,43 @@ void addJob(volatile Jobs *jobs, Child *newJob) {
     jobs->head = newJob;
 }
 
+int removeCompletedJobs(volatile Jobs *jobs) {
+    /*
+        After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children
+    */
+
+    Child *ptr = jobs->head;
+    Child *prev = NULL;
+    while (ptr != NULL) {
+        int status;
+        int w = waitpid(ptr->processID, &status, WNOHANG);
+        if (w == -1) {
+            perror("waitpid error");
+            return FALSE;
+        }
+        if (WIFEXITED(status) || WIFSIGNALED(status)) {
+            // block signals
+
+            if (prev == NULL) {
+                jobs->head = ptr->next;
+                free(ptr->argv);
+                free(ptr->input);
+                free(ptr);
+                ptr = jobs->head;
+            } else {
+                prev->next = ptr->next;
+                free(ptr->command);
+                free(ptr);
+                ptr = prev->next;
+            }
+        } else {
+            prev = ptr;
+            ptr = ptr->next;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
 int removeCompletedJob(volatile Jobs *jobs, int pid) {
     /*
         After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children 
