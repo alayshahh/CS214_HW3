@@ -127,7 +127,7 @@ void populateChild(Child *child, char **argv, pid_t processID, pid_t groupID, in
 int executeChild(char *command, char **args) {
     if (execvp(command, args) == -1) {
         printf("%s: command not found\n", command);
-        return FALSE;
+        exit(EXIT_FAILURE);
     }
     return TRUE;
 }

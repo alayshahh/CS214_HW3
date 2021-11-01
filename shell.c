@@ -27,7 +27,7 @@ void sigchldHandler() {
     sigfillset(&maskAll);
 
 	pid_t pid;
-	while((pid = waitpid(-1, NULL, 0)) > 0){
+	if((pid = waitpid(-1, NULL, 0)) > 0){
 		sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 		removeCompletedJob(&jobs, pid);
     	sigprocmask(SIG_SETMASK, &prevAll, NULL);
