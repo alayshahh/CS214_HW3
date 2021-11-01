@@ -12,11 +12,11 @@ void terminateJobs(Jobs jobs){
 
 	while(ptr != NULL){
 		if(ptr->isSuspended == 1){ //stopped
-			kill(ptr->processID, SIGHUP);
-			kill(ptr->processID, SIGCONT);
+			killpg(ptr->groupID, SIGHUP);
+			killpg(ptr->groupID, SIGCONT);
 		}
 		if(ptr->isSuspended == 0){ //running
-			kill(ptr->processID, SIGHUP);
+			killpg(ptr->groupID, SIGHUP);
 		}
 	}
 		
@@ -49,7 +49,7 @@ int isInternalCommand(char** input, Jobs jobs){
 	} else 
 	if(strcmp("kill", input[0]) == 0){ //kill <JobID>
 		Child* child = getJobByID(input[1], jobs);
-		kill(child->processID, SIGINT);
+		kill(child->processID,  SIGINT);
 		return TRUE;
 	} else 
 	if(strcmp("jobs", input[0]) == 0){
@@ -57,11 +57,24 @@ int isInternalCommand(char** input, Jobs jobs){
 		return TRUE;
 	} else 
 	if(strcmp("cd", input[0]) == 0){ //cd [PATH]
-		chdir(input[1]);
+		char cwd[256];
 
+		// chdir(input[1]);
 		// TODO: Do we have to update PWD env var
-		// char* pwd = getenv("PWD");
-		// printf("%s\n", pwd);
+		
+
+		if (chdir(input[1]) != 0)
+			perror("chdir() error()");
+		else {
+			if (getcwd(cwd, sizeof(cwd)) == NULL)
+			perror("getcwd() error");
+			// else
+			// printf("current working directory is: %s\n", cwd);
+			setenv("PWD", cwd, 1);
+			char* pwd = getenv("PWD");
+			printf("%s\n", pwd);
+		}
+
 		return TRUE;
 	}
 
