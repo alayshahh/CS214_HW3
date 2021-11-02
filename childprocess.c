@@ -41,6 +41,44 @@ void addJob(volatile Jobs *jobs, Child *newJob) {
     jobs->head = newJob;
 }
 
+int removeCompletedJobs(volatile Jobs *jobs) {
+    /*
+        After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children
+    */
+
+    Child *ptr = jobs->head;
+    Child *prev = NULL;
+    while (ptr != NULL) {
+        int status = 0;
+        int w = waitpid(ptr->processID, &status, WNOHANG);
+        if (w < 0 && errno != ECHILD) {
+            perror("waitpid error");
+            return FALSE;
+        }
+
+        if (w != 0 && (WIFEXITED(status) || WIFSIGNALED(status))) {
+            // printf("w = %d removing job [%d] PID: %d %s, exited with status %d \n", w, ptr->jobID, ptr->processID, ptr->command, status);
+            if (prev == NULL) {
+                jobs->head = ptr->next;
+                free(ptr->argv);
+                free(ptr->input);
+                free(ptr);
+                ptr = jobs->head;
+            } else {
+                prev->next = ptr->next;
+                free(ptr->argv);
+                free(ptr->input);
+                free(ptr);
+                ptr = prev->next;
+            }
+        } else {
+            prev = ptr;
+            ptr = ptr->next;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
 int removeCompletedJob(volatile Jobs *jobs, int pid) {
     /*
         After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children 
@@ -49,7 +87,7 @@ int removeCompletedJob(volatile Jobs *jobs, int pid) {
     Child *ptr = jobs->head;
     Child *prev = NULL;
     while (ptr != NULL) {
-        if(ptr->processID == pid){
+        if (ptr->processID == pid) {
             if (prev == NULL) {
                 jobs->head = ptr->next;
                 free(ptr->argv);
@@ -127,28 +165,27 @@ void populateChild(Child *child, char **argv, pid_t processID, pid_t groupID, in
 int executeChild(char *command, char **args) {
     if (execvp(command, args) == -1) {
         printf("%s: command not found\n", command);
+        free(args);
         exit(EXIT_FAILURE);
     }
-    return TRUE;
+    exit(EXIT_SUCCESS);
 }
 
-Child* getJobByID(char* jobIDstr, Jobs jobs){
-
-    if(jobs.head == NULL){
+Child *getJobByID(char *jobIDstr, Jobs jobs) {
+    if (jobs.head == NULL) {
         return NULL;
     }
 
     int targetJobID;
     sscanf(jobIDstr, "%%%d", &targetJobID);
 
-    Child* ptr = jobs.head;
+    Child *ptr = jobs.head;
 
-    while(ptr != NULL){
-        if(ptr->jobID ==targetJobID){
+    while (ptr != NULL) {
+        if (ptr->jobID == targetJobID) {
             return ptr;
         }
     }
 
     return NULL;
-
 }
