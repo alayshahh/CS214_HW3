@@ -96,7 +96,8 @@ int removeCompletedJob(volatile Jobs *jobs, int pid) {
                 ptr = jobs->head;
             } else {
                 prev->next = ptr->next;
-                free(ptr->command);
+                free(ptr->argv);
+                free(ptr->input);
                 free(ptr);
                 ptr = prev->next;
             }
@@ -165,7 +166,6 @@ void populateChild(Child *child, char **argv, pid_t processID, pid_t groupID, in
 int executeChild(char *command, char **args) {
     if (execvp(command, args) == -1) {
         printf("%s: command not found\n", command);
-        free(args);
         exit(EXIT_FAILURE);
     }
     exit(EXIT_SUCCESS);
