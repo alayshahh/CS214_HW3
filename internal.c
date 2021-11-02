@@ -53,7 +53,12 @@ int isInternalCommand(char** input, Jobs jobs){
 		return TRUE;
 	} else 
 	if(strcmp("jobs", input[0]) == 0){
+		sigset_t maskAll, prevAll;
+		sigfillset(&maskAll);
+
+		sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 		printAllJobs(&jobs);
+		sigprocmask(SIG_SETMASK, &prevAll, NULL);
 		return TRUE;
 	} else 
 	if(strcmp("cd", input[0]) == 0){ //cd [PATH]
