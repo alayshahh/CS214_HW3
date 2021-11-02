@@ -22,6 +22,10 @@ void terminateJobs(Jobs jobs) {
     }
 }
 
+void jobIDError(char* jobID){
+    printf("Error: jobID: '%s' does not exist.", jobID);
+}
+
 int isInternalCommand(char** args, Jobs jobs, char* input) {
     if (strcmp("fg", args[0]) == 0) {  //fg <JobID>
         //TODO: Check for errors
@@ -33,14 +37,20 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
             child->isSuspended = FALSE;
             killpg(child->processID, SIGCONT);
             waitpid(child->processID, NULL, WUNTRACED);
+        } else {
+            jobIDError(args[1]);
         }
         return TRUE;
     } else if (strcmp("bg", args[0]) == 0) {  //bg <JobID>
         Child* child = getJobByID(args[1], jobs);
-        child->isSuspended = FALSE;
-        child->isBackground = TRUE;
-        //TODO: Do we still want to run this if the process is in the bg
-        killpg(child->processID, SIGCONT);
+        if(child != NULL){
+            child->isSuspended = FALSE;
+            child->isBackground = TRUE;
+            //TODO: Do we still want to run this if the process is in the bg
+            killpg(child->processID, SIGCONT);
+        } else {
+            jobIDError(args[1]);
+        }
         return TRUE;
     } else if (strcmp("exit", args[0]) == 0) {
         terminateJobs(jobs);
@@ -51,11 +61,14 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         return TRUE;
     } else if (strcmp("kill", args[0]) == 0) {  //kill <JobID>
         Child* child = getJobByID(args[1], jobs);
-
-        if(child->isSuspended){
-            kill(child->processID, SIGCONT);
+        if(child != NULL){
+            if(child->isSuspended){
+                kill(child->processID, SIGCONT);
+            }
+            kill(child->processID, SIGINT);
+        } else{
+            jobIDError(args[1]);
         }
-        kill(child->processID, SIGINT);
         return TRUE;
     } else if (strcmp("jobs", args[0]) == 0) {
         printAllJobs(&jobs);
