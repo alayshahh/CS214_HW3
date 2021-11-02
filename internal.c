@@ -31,7 +31,7 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         if (child != NULL) {
             child->isBackground = FALSE;
             child->isSuspended = FALSE;
-            kill(child->processID, SIGCONT);
+            killpg(child->processID, SIGCONT);
             waitpid(child->processID, NULL, WUNTRACED);
         }
         return TRUE;
@@ -40,7 +40,7 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         child->isSuspended = FALSE;
         child->isBackground = TRUE;
         //TODO: Do we still want to run this if the process is in the bg
-        kill(child->processID, SIGCONT);
+        killpg(child->processID, SIGCONT);
         return TRUE;
     } else if (strcmp("exit", args[0]) == 0) {
 
