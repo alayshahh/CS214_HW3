@@ -18,14 +18,15 @@ void terminateJobs(Jobs jobs) {
         if (ptr->isSuspended == 0) {  //running
             killpg(ptr->groupID, SIGHUP);
         }
+		ptr = ptr->next;
     }
 }
 
-int isInternalCommand(char** input, Jobs jobs) {
-    if (strcmp("fg", input[0]) == 0) {  //fg <JobID>
+int isInternalCommand(char** args, Jobs jobs, char* input) {
+    if (strcmp("fg", args[0]) == 0) {  //fg <JobID>
         //TODO: Check for errors
 
-        Child* child = getJobByID(input[1], jobs);
+        Child* child = getJobByID(args[1], jobs);
 
         if (child != NULL) {
             child->isBackground = FALSE;
@@ -34,54 +35,34 @@ int isInternalCommand(char** input, Jobs jobs) {
             waitpid(child->processID, NULL, 0);
         }
         return TRUE;
-    } else if (strcmp("bg", input[0]) == 0) {  //bg <JobID>
-        Child* child = getJobByID(input[1], jobs);
+    } else if (strcmp("bg", args[0]) == 0) {  //bg <JobID>
+        Child* child = getJobByID(args[1], jobs);
         child->isSuspended = FALSE;
         child->isBackground = TRUE;
         //TODO: Do we still want to run this if the process is in the bg
         kill(child->processID, SIGCONT);
         return TRUE;
-    } else if (strcmp("exit", input[0]) == 0) {
+    } else if (strcmp("exit", args[0]) == 0) {
+
         terminateJobs(jobs);
+		free(args);
+		free(input);
         kill(getpid(), SIGHUP);
         return TRUE;
-    } else if (strcmp("kill", input[0]) == 0) {  //kill <JobID>
-        Child* child = getJobByID(input[1], jobs);
+    } else if (strcmp("kill", args[0]) == 0) {  //kill <JobID>
+        Child* child = getJobByID(args[1], jobs);
         kill(child->processID, SIGINT);
         return TRUE;
-    } else if (strcmp("jobs", input[0]) == 0) {
+    } else if (strcmp("jobs", args[0]) == 0) {
         printAllJobs(&jobs);
         return TRUE;
-    } else if (strcmp("cd", input[0]) == 0) {  //cd [PATH]
+    } else if (strcmp("cd", args[0]) == 0) {  //cd [PATH]
         char cwd[256];
 
-		//TODO: Do we still want to run this if the process is in the bg
-		kill(child->processID, SIGCONT);
-		return TRUE;
-	} else 
-	if(strcmp("exit", input[0]) == 0){
-		terminateJobs(jobs);
-		kill(getpid(), SIGHUP);
-		return TRUE;
-	} else 
-	if(strcmp("kill", input[0]) == 0){ //kill <JobID>
-		Child* child = getJobByID(input[1], jobs);
-		kill(child->processID,  SIGINT);
-		return TRUE;
-	} else 
-	if(strcmp("jobs", input[0]) == 0){
-		sigset_t maskAll, prevAll;
-		sigfillset(&maskAll);
+        // chdir(args[1]);
+        // TODO: Do we have to update PWD env var
 
-		sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
-		printAllJobs(&jobs);
-		sigprocmask(SIG_SETMASK, &prevAll, NULL);
-		return TRUE;
-	} else 
-	if(strcmp("cd", input[0]) == 0){ //cd [PATH]
-		char cwd[256];
-
-        if (chdir(input[1]) != 0)
+        if (chdir(args[1]) != 0)
             perror("chdir() error()");
         else {
             if (getcwd(cwd, sizeof(cwd)) == NULL)
@@ -94,7 +75,7 @@ int isInternalCommand(char** input, Jobs jobs) {
         }
 
         return TRUE;
-    }
+    } 
 
     return FALSE;
 }

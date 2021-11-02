@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 
         char **args = splitString(input, isBackground); /* block signals */
 
-        int isIC = isInternalCommand(args, jobs);
+        int isIC = isInternalCommand(args, jobs, input);
 
         sigset_t maskAll, maskOne, prevOne;
         sigemptyset(&maskOne);

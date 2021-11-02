@@ -1,4 +1,4 @@
 #include <stdlib.h>
 
-int isInternalCommand(char** input, Jobs jobs);
+int isInternalCommand(char** args, Jobs jobs, char* input);
 void cleanJobs(Jobs jobs);
