@@ -147,6 +147,7 @@ int sendSignalToForeground(Jobs *jobs, int signal) {
             }
             return TRUE;  //all is good
         }
+        ptr = ptr->next;
     }
     //no foreground process doesnt exist
     return FALSE;

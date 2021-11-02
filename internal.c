@@ -51,6 +51,10 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         return TRUE;
     } else if (strcmp("kill", args[0]) == 0) {  //kill <JobID>
         Child* child = getJobByID(args[1], jobs);
+
+        if(child->isSuspended){
+            kill(child->processID, SIGCONT);
+        }
         kill(child->processID, SIGINT);
         return TRUE;
     } else if (strcmp("jobs", args[0]) == 0) {
