@@ -14,7 +14,7 @@ volatile Jobs jobs;
 void sigintHandler() {
     sigset_t maskAll, prevAll;
     sigfillset(&maskAll);
-    printf("SIGINT received");
+    // printf("SIGINT received");
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 
     int res = sendSignalToForeground(&jobs, SIGINT);
@@ -24,7 +24,7 @@ void sigintHandler() {
 void sigtstpHandler() {
     sigset_t maskAll, prevAll;
     sigfillset(&maskAll);
-    printf("SIGTSTP received");
+    // printf("SIGTSTP received");
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 
     int res = sendSignalToForeground(&jobs, SIGTSTP);
@@ -39,7 +39,7 @@ void sigchldHandler() {
     //     removeCompletedJob(&jobs, pid);
     // }
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
-    printf("SIGCHLD\n");
+    // printf("SIGCHLD\n");
     removeCompletedJobs(&jobs);
     sigprocmask(SIG_SETMASK, &prevAll, NULL);
 }
@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
 
     char *input = NULL;
     size_t n = 0;
-    pid_t ppid = getpid();
     /* placeholder for signal handlers */
     signal(SIGINT, sigintHandler);
     signal(SIGTSTP, sigtstpHandler);
@@ -57,6 +56,7 @@ int main(int argc, char **argv) {
 
     /* set envirnment variable so we can run commands from /bin and /usr/bin */
     setenv(PATH, PATH_VAR, 1);
+
     printf("> ");
     while (getline(&input, &n, stdin) > 0) {
         if (strcmp(input, "\n") == 0) {
@@ -107,5 +107,8 @@ int main(int argc, char **argv) {
         n = 0;
     }
 
-    return EXIT_SUCCESS;
+    //if EOF reached (^D)
+    free(input);
+    terminateJobs(jobs);
+    exit(EXIT_SUCCESS);
 }
