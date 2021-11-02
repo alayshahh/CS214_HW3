@@ -63,4 +63,4 @@ dkms.conf
 # vscode files
 .vscode/*
 
-.nsf*
+.nfs*

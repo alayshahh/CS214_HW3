@@ -18,7 +18,7 @@ void terminateJobs(Jobs jobs) {
         if (ptr->isSuspended == 0) {  //running
             killpg(ptr->groupID, SIGHUP);
         }
-		ptr = ptr->next;
+        ptr = ptr->next;
     }
 }
 
@@ -43,11 +43,11 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         killpg(child->processID, SIGCONT);
         return TRUE;
     } else if (strcmp("exit", args[0]) == 0) {
-
         terminateJobs(jobs);
-		free(args);
-		free(input);
-        kill(getpid(), SIGHUP);
+        free(args);
+        free(input);
+        exit(EXIT_SUCCESS);
+        // kill(getpid(), SIGHUP);
         return TRUE;
     } else if (strcmp("kill", args[0]) == 0) {  //kill <JobID>
         Child* child = getJobByID(args[1], jobs);
@@ -75,7 +75,7 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         }
 
         return TRUE;
-    } 
+    }
 
     return FALSE;
 }
