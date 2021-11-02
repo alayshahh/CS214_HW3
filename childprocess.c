@@ -57,7 +57,7 @@ int removeCompletedJobs(volatile Jobs *jobs) {
         }
 
         if (w != 0 && (WIFEXITED(status) || WIFSIGNALED(status))) {
-            // printf("w = %d removing job [%d] PID: %d %s, exited with status %d \n", w, ptr->jobID, ptr->processID, ptr->command, status);
+            printf("w = %d removing job [%d] PID: %d %s, exited with status %d \n", w, ptr->jobID, ptr->processID, ptr->command, status);
             if (prev == NULL) {
                 jobs->head = ptr->next;
                 free(ptr->argv);
@@ -185,6 +185,7 @@ Child *getJobByID(char *jobIDstr, Jobs jobs) {
         if (ptr->jobID == targetJobID) {
             return ptr;
         }
+        ptr = ptr->next;
     }
 
     return NULL;

@@ -17,11 +17,19 @@ void sigintHandler() {
     printf("SIGINT received");
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 
-    int res = sendSignalToForeground(&jobs, SIGTERM);
+    int res = sendSignalToForeground(&jobs, SIGINT);
 
     sigprocmask(SIG_SETMASK, &prevAll, NULL);
 }
 void sigtstpHandler() {
+    sigset_t maskAll, prevAll;
+    sigfillset(&maskAll);
+    printf("SIGTSTP received");
+    sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
+
+    int res = sendSignalToForeground(&jobs, SIGTSTP);
+
+    sigprocmask(SIG_SETMASK, &prevAll, NULL);
 }
 void sigchldHandler() {
     sigset_t maskAll, prevAll;
@@ -31,7 +39,7 @@ void sigchldHandler() {
     //     removeCompletedJob(&jobs, pid);
     // }
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
-    // printf("SIGCHLD\n");
+    printf("SIGCHLD\n");
     removeCompletedJobs(&jobs);
     sigprocmask(SIG_SETMASK, &prevAll, NULL);
 }
@@ -85,7 +93,7 @@ int main(int argc, char **argv) {
 
                 if (!isBackground) {
                     int status;
-                    waitpid(pid, &status, 0);
+                    waitpid(pid, &status, WUNTRACED);
                 }
             }
         } else {

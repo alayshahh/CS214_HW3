@@ -32,7 +32,7 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
             child->isBackground = FALSE;
             child->isSuspended = FALSE;
             kill(child->processID, SIGCONT);
-            waitpid(child->processID, NULL, 0);
+            waitpid(child->processID, NULL, WUNTRACED);
         }
         return TRUE;
     } else if (strcmp("bg", args[0]) == 0) {  //bg <JobID>
