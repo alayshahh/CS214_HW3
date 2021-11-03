@@ -81,36 +81,6 @@ int removeCompletedJobs(volatile Jobs *jobs) {
     return EXIT_SUCCESS;
 }
 
-int removeCompletedJob(volatile Jobs *jobs, int pid) {
-    /*
-        After a SIGCHLD signal is receieved, this function is called and it will reap all termianted children 
-    */
-
-    Child *ptr = jobs->head;
-    Child *prev = NULL;
-    while (ptr != NULL) {
-        if (ptr->processID == pid) {
-            if (prev == NULL) {
-                jobs->head = ptr->next;
-                free(ptr->argv);
-                free(ptr->input);
-                free(ptr);
-                ptr = jobs->head;
-            } else {
-                prev->next = ptr->next;
-                free(ptr->argv);
-                free(ptr->input);
-                free(ptr);
-                ptr = prev->next;
-            }
-            break;
-        } else {
-            prev = ptr;
-            ptr = ptr->next;
-        }
-    }
-    return EXIT_SUCCESS;
-}
 
 int sendSignalToJob(Jobs *jobs, int jobID) {
     /*
