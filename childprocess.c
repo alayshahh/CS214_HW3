@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <sys/stat.h>
+
 
 #include "constants.h"
 
@@ -166,11 +168,17 @@ void populateChild(Child *child, char **argv, pid_t processID, pid_t groupID, in
 
 int executeChild(char *command, char **args) {
     if (execvp(command, args) == -1) {
-        printf("%s: command not found\n", command);
+        if(strstr(command, "/")){
+            perror(command);
+        }
+        else {
+            printf("%s: command not found\n", command);
+        }
         exit(EXIT_FAILURE);
     }
     exit(EXIT_SUCCESS);
 }
+
 
 Child *getJobByID(char *jobIDstr, Jobs jobs) {
     if (jobs.head == NULL) {

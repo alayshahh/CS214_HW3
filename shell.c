@@ -89,6 +89,9 @@ int main(int argc, char **argv) {
                 Child *child = (Child *)malloc(sizeof(Child));
                 populateChild(child, args, processID, processID, isBackground, input);
                 addJob(&jobs, child);
+                if(isBackground){
+                    printf("[%d] %d\n", child->jobID, child->processID);
+                }
                 sigprocmask(SIG_SETMASK, &prevOne, NULL);  //unblock
 
                 if (!isBackground) {
