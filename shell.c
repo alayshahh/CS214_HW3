@@ -92,20 +92,26 @@ int main(int argc, char **argv) {
                 if (isBackground) {
                     printf("[%d] %d\n", child->jobID, child->processID);
                 }
+                int jobID = child->jobID;
                 sigprocmask(SIG_SETMASK, &prevOne, NULL);  //unblock
 
                 if (!isBackground) {
                     int status;
                     waitpid(pid, &status, WUNTRACED);
-                    printf("Main Status: %d\n", status);
+                    if (WIFSIGNALED(status) && WTERMSIG(status) != SIGHUP) {
+                        sigprocmask(SIG_BLOCK, &maskAll, &prevOne);
+                        printf("[%d] %d  terminated by signal %d\n", jobID, pid, WTERMSIG(status));
+                        sigprocmask(SIG_SETMASK, &prevOne, NULL);
+                    }
                 }
             }
         } else {
             free(input);
             free(args);
         }
-
+        sigprocmask(SIG_BLOCK, &maskAll, &prevOne);
         printf("> ");
+        sigprocmask(SIG_SETMASK, &prevOne, NULL);
 
         input = NULL;
         n = 0;

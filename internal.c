@@ -27,18 +27,31 @@ void jobIDError(char* jobID) {
 }
 
 int isInternalCommand(char** args, Jobs jobs, char* input) {
+    sigset_t maskAll, prev;
+    sigfillset(&maskAll);
+
     if (strcmp("fg", args[0]) == 0) {  //fg <JobID>
         //TODO: Check for errors
 
         Child* child = getJobByID(args[1], jobs);
 
         if (child != NULL) {
+            int jobID = child->jobID;
+            pid_t pid = child->processID;
             child->isBackground = FALSE;
             child->isSuspended = FALSE;
             killpg(child->processID, SIGCONT);
-            waitpid(child->processID, NULL, WUNTRACED);
+            int status;
+            waitpid(child->processID, &status, WUNTRACED);
+            if (WIFSIGNALED(status) && WTERMSIG(status) != SIGHUP) {
+                sigprocmask(SIG_BLOCK, &maskAll, &prev);
+                printf("[%d] %d  terminated by signal %d\n", jobID, pid, WTERMSIG(status));
+                sigprocmask(SIG_SETMASK, &prev, NULL);
+            }
         } else {
+            sigprocmask(SIG_BLOCK, &maskAll, &prev);
             jobIDError(args[1]);
+            sigprocmask(SIG_SETMASK, &prev, NULL);
         }
         return TRUE;
     } else if (strcmp("bg", args[0]) == 0) {  //bg <JobID>
@@ -49,7 +62,9 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
             //TODO: Do we still want to run this if the process is in the bg
             killpg(child->processID, SIGCONT);
         } else {
+            sigprocmask(SIG_BLOCK, &maskAll, &prev);
             jobIDError(args[1]);
+            sigprocmask(SIG_SETMASK, &prev, NULL);
         }
         return TRUE;
     } else if (strcmp("exit", args[0]) == 0) {
@@ -67,11 +82,15 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
             }
             kill(child->processID, SIGTERM);
         } else {
+            sigprocmask(SIG_BLOCK, &maskAll, &prev);
             jobIDError(args[1]);
+            sigprocmask(SIG_SETMASK, &prev, NULL);
         }
         return TRUE;
     } else if (strcmp("jobs", args[0]) == 0) {
+        sigprocmask(SIG_BLOCK, &maskAll, &prev);
         printAllJobs(&jobs);
+        sigprocmask(SIG_SETMASK, &prev, NULL);
         return TRUE;
     } else if (strcmp("cd", args[0]) == 0) {  //cd [PATH]
         char cwd[256];
