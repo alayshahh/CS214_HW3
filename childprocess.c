@@ -4,12 +4,12 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/signal.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <sys/stat.h>
-
 
 #include "constants.h"
 
@@ -22,7 +22,7 @@ void printAllJobs(volatile Jobs *jobs) {
         } else
             printf("Running ");
         printf("%s", head->command);
-        if (head->isBackground)
+        if (head->isBackground && !head->isSuspended)
             printf(" &");
         printf("\n");
         head = head->next;
@@ -60,6 +60,10 @@ int removeCompletedJobs(volatile Jobs *jobs) {
 
         if (w != 0 && (WIFEXITED(status) || WIFSIGNALED(status))) {
             // printf("w = %d removing job [%d] PID: %d %s, exited with status %d \n", w, ptr->jobID, ptr->processID, ptr->command, status);
+            if (WIFSIGNALED(status) && WTERMSIG(status) != SIGHUP) {
+                printf("[%d] %d  terminated by signal %d\n", ptr->jobID, ptr->processID, WTERMSIG(status));
+            }
+
             if (prev == NULL) {
                 jobs->head = ptr->next;
                 free(ptr->argv);
@@ -80,7 +84,6 @@ int removeCompletedJobs(volatile Jobs *jobs) {
     }
     return EXIT_SUCCESS;
 }
-
 
 int sendSignalToJob(Jobs *jobs, int jobID) {
     /*
@@ -138,17 +141,15 @@ void populateChild(Child *child, char **argv, pid_t processID, pid_t groupID, in
 
 int executeChild(char *command, char **args) {
     if (execvp(command, args) == -1) {
-        if(strstr(command, "/")){
+        if (strstr(command, "/")) {
             perror(command);
-        }
-        else {
+        } else {
             printf("%s: command not found\n", command);
         }
         exit(EXIT_FAILURE);
     }
     exit(EXIT_SUCCESS);
 }
-
 
 Child *getJobByID(char *jobIDstr, Jobs jobs) {
     if (jobs.head == NULL) {

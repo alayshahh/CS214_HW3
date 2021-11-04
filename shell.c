@@ -17,7 +17,7 @@ void sigintHandler() {
     // printf("SIGINT received");
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 
-    int res = sendSignalToForeground(&jobs, SIGINT);
+    sendSignalToForeground(&jobs, SIGINT);
 
     sigprocmask(SIG_SETMASK, &prevAll, NULL);
 }
@@ -27,7 +27,7 @@ void sigtstpHandler() {
     // printf("SIGTSTP received");
     sigprocmask(SIG_BLOCK, &maskAll, &prevAll);
 
-    int res = sendSignalToForeground(&jobs, SIGTSTP);
+    sendSignalToForeground(&jobs, SIGTSTP);
 
     sigprocmask(SIG_SETMASK, &prevAll, NULL);
 }
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
                 Child *child = (Child *)malloc(sizeof(Child));
                 populateChild(child, args, processID, processID, isBackground, input);
                 addJob(&jobs, child);
-                if(isBackground){
+                if (isBackground) {
                     printf("[%d] %d\n", child->jobID, child->processID);
                 }
                 sigprocmask(SIG_SETMASK, &prevOne, NULL);  //unblock
@@ -97,6 +97,7 @@ int main(int argc, char **argv) {
                 if (!isBackground) {
                     int status;
                     waitpid(pid, &status, WUNTRACED);
+                    printf("Main Status: %d\n", status);
                 }
             }
         } else {
