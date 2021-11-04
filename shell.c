@@ -56,6 +56,10 @@ int main(int argc, char **argv) {
 
     /* set envirnment variable so we can run commands from /bin and /usr/bin */
     setenv(PATH, PATH_VAR, 1);
+    sigset_t maskAll, maskOne, prevOne;
+    sigemptyset(&maskOne);
+    sigaddset(&maskOne, SIGCHLD);
+    sigfillset(&maskAll);
 
     printf("> ");
     while (getline(&input, &n, stdin) > 0) {
@@ -72,9 +76,6 @@ int main(int argc, char **argv) {
 
         int isIC = isInternalCommand(args, jobs, input);
 
-        sigset_t maskAll, maskOne, prevOne;
-        sigemptyset(&maskOne);
-        sigaddset(&maskOne, SIGCHLD);
         // if it is not a built in command
         if (!isIC) {
             sigprocmask(SIG_BLOCK, &maskOne, &prevOne);  //block
@@ -120,5 +121,7 @@ int main(int argc, char **argv) {
     //if EOF reached (^D)
     free(input);
     terminateJobs(jobs);
+    sigprocmask(SIG_BLOCK, &maskAll, NULL);
+    printf("\n");
     exit(EXIT_SUCCESS);
 }

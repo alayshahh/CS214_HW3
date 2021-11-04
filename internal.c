@@ -69,6 +69,7 @@ int isInternalCommand(char** args, Jobs jobs, char* input) {
         return TRUE;
     } else if (strcmp("exit", args[0]) == 0) {
         terminateJobs(jobs);
+        sigprocmask(SIG_BLOCK, &maskAll, &prev);
         free(args);
         free(input);
         exit(EXIT_SUCCESS);
